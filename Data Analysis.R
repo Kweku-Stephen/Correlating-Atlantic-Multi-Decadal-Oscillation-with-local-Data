@@ -74,11 +74,11 @@ lapply(
 )
 
 # Conveting Accra rr, TMax and TMin variable to numeric
-Stations_1[[1]][[2]] <- transform(
+Stations_1[[1]][["Accra_rr_temp.txt"]] <- transform(
 	Stations_1[[1]][[2]],
-	rr = as.numeric(Stations_1[[1]][[2]][ ,rr]),
-	TMax = as.numeric(Stations_1[[1]][[2]][ ,TMax]),
-	TMin = as.numeric(Stations_1[[1]][[2]][ ,TMin])
+	rr = as.numeric(Stations_1[[1]][["Accra_rr_temp.txt"]][ ,rr]),
+	TMax = as.numeric(Stations_1[[1]][["Accra_rr_temp.txt"]][ ,TMax]),
+	TMin = as.numeric(Stations_1[[1]][["Accra_rr_temp.txt"]][ ,TMin])
 )
 
 
@@ -114,7 +114,8 @@ parallel::clusterApply(
 			}
 		)
 	}
-) -> Stations_mean_temp
+) |> . =>
+	do.call(c, .) -> Stations_mean_temp
 
 
 # Computing the Annual anomalies of Tmax and Tmin ####
@@ -132,7 +133,7 @@ parallel::clusterApply(
 		lapply(
 			Stations_mean_temp[[vec]],
 			\(data = "") {
-				data.table::data.table(
+				data.frame(
 					Year = data[ ,"Year"],
 					TMax = with(data, (TMax - mean(TMax, na.rm = TRUE))/ sd(TMax, na.rm = TRUE)),
 					TMin = with(data, (TMin - mean(TMin, na.rm = TRUE))/ sd(TMin, na.rm = TRUE))
@@ -140,16 +141,41 @@ parallel::clusterApply(
 			}
 		)
 	}
-) -> standard_anomalies
+) |> . =>
+	do.call(c, .) -> standard_anomalies
 
 
 # Stoping Cluater
-parallel::stopCluster()
+parallel::stopCluster(cl)
+
+# convering Stations_mean_temp to a single dataframe with a new column "Stations" #
+listed <- within(
+	(do.call(rbind, Stations_mean_temp)),
+	
+	{
+		# Columns to add
+		Stations = rep(
+			names(Stations_mean_temp), 
+			lapply(Stations_mean_temp, nrow) |> . => 
+				do.call(c, .)
+		)
+	}
+) |> 
+	# Transforming Year variable to integer
+	transform(Year = as.integer(Year))
+
+
 
 # Visualizations ####
 library(trelliscopejs)
+library(ggplot2)
 
 
+ggplot(data = listed, aes(x = Year)) +
+	geom_line(aes(y = TMax)) +
+	#geom_line(aes(y = TMin)) +
+#	scale_x_continuous(breaks = seq(1960, 2016, by = 4)) +
+	facet_trelliscope(~ Stations)
 
 
 
