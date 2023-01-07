@@ -178,7 +178,9 @@ ggplot(data = listed, aes(x = Year, y = TMax)) +
 	facet_trelliscope(
 		~ Stations,
 		scales = "sliced",
-		auto_cog = TRUE
+		auto_cog = TRUE,
+		nrow = 2, 
+		ncol = 2
 	)
 
 
