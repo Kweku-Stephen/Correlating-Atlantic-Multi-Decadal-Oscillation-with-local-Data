@@ -171,11 +171,15 @@ library(trelliscopejs)
 library(ggplot2)
 
 
-ggplot(data = listed, aes(x = Year)) +
-	geom_line(aes(y = TMax)) +
-	#geom_line(aes(y = TMin)) +
-#	scale_x_continuous(breaks = seq(1960, 2016, by = 4)) +
-	facet_trelliscope(~ Stations)
+
+ggplot(data = listed, aes(x = Year, y = TMax)) +
+	geom_line(col = "firebrick") +
+	# Conditioning by Stations
+	facet_trelliscope(
+		~ Stations,
+		scales = "sliced",
+		auto_cog = TRUE
+	)
 
 
 
