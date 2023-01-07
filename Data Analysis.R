@@ -125,7 +125,7 @@ parallel::clusterApply(
 	# cluster of 4 nodes
 	cl,
 	
-	#chunking on data side
+	#chunking on worker side
 	1:4,
 	
 	# Anonymous function to compute anomalies
