@@ -150,10 +150,11 @@ parallel::stopCluster(cl)
 
 # convering Stations_mean_temp to a single dataframe with a new column "Stations" #
 listed <- within(
+	# Dataframe to which binding is to be done
 	(do.call(rbind, Stations_mean_temp)),
 	
 	{
-		# Columns to add
+		# Column to add
 		Stations = rep(
 			names(Stations_mean_temp), 
 			lapply(Stations_mean_temp, nrow) |> . => 
