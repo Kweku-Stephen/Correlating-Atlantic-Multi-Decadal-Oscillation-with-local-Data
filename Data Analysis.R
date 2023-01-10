@@ -4,7 +4,7 @@ library(magrittr)
 # Invoking the pipebind operator ####
 Sys.setenv("_R_USE_PIPEBIND_" = "true")
 
-# Creating a cluster of four workers to import multiple datasets ####
+# Creating a cluster of four nodes/workers to import multiple datasets ####
 cl <- parallel::makeCluster(
 	parallelly::availableCores() - 4,
 	type = "PSOCK"
@@ -114,8 +114,9 @@ parallel::clusterApply(
 			}
 		)
 	}
-) |> . =>
-	do.call(c, .) -> Stations_mean_temp
+) -> Stations_mean_temp
+# |> . =>
+# 	do.call(c, .) -> Stations_mean_temp
 
 
 # Computing the Annual anomalies of Tmax and Tmin ####
@@ -151,13 +152,13 @@ parallel::stopCluster(cl)
 # convering Stations_mean_temp to a single dataframe with a new column "Stations" #
 listed <- within(
 	# Dataframe to which binding is to be done
-	(do.call(rbind, Stations_mean_temp)),
+	do.call(rbind, do.call(c, Stations_mean_temp)),
 	
 	{
 		# Column to add
 		Stations = rep(
-			names(Stations_mean_temp), 
-			lapply(Stations_mean_temp, nrow) |> . => 
+			names(Stations), 
+			lapply(do.call(c, Stations_mean_temp), nrow) |> . => 
 				do.call(c, .)
 		)
 	}
@@ -165,6 +166,8 @@ listed <- within(
 	# Transforming Year variable to integer
 	transform(Year = as.integer(Year))
 
+# Converting rownames to integer
+rownames(listed) <- 1:nrow(listed)
 
 
 # Visualizations ####
