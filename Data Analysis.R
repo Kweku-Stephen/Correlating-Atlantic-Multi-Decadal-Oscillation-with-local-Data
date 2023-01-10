@@ -44,7 +44,7 @@ parallel::clusterApply(
 	# cluster of 4 nodes
 	cl,
 	
-	# chunking on data side
+	# chunking on worker\s side
 	split(
 		names(Stations),
 		as.factor(unlist(mapply(rep, 1:4, c(6, 5, 5, 6))))
@@ -101,7 +101,7 @@ parallel::clusterApply(
 	# cluster of 4 nodes
 	cl,
 	
-	#chunking on data side
+	#chunking on worker\s side
 	1:4,
 	
 	# Anonymous function to compute anomalies
