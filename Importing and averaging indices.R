@@ -28,7 +28,7 @@ library(magrittr)
 # 
 # # Extracting years from 1960 to 2016
 # indices %<>% lapply(
-# 	\(tibble = "", years = "") subset(tibble, )
+# 	\(tibble = "", years = "") subset(tibble, Year >= 1960 & Year <= 2016)
 # )
 	
 
@@ -54,7 +54,7 @@ indices <- parallel::parLapply(
 		
 		lapply(
 			sheetname, 
-			\(sheetname) readxl::read_excel(workbook, sheetname, range)[c(1, 15:26)]
+			\(sheetname) readxl::read_excel(workbook, sheetname, range, na = "-99.99")[c(1, 15:26)]
 		)
 	},
 	
@@ -67,10 +67,29 @@ indices <- parallel::parLapply(
 parallel::stopCluster(cl)
 # Computing annual means of indices ####
 
-# Data Reshaping ####
+
+# Data Reshaping - combining all lists with indices into a single list ####
 indices <- indices |> . =>
 	do.call(c, .) |> 
 	setNames((dir(pattern = "INDICES") |> readxl::excel_sheets())[1:11])
 
+
+# Renaming all columns of each tibble of the list "indices" ####
+indices %<>% lapply(
+	\(tibble = "") setNames(tibble, c("Year", month.abb))
+)
+
+
+# Mean annual anomalies for each index ####
+indices %<>% lapply(
+	\(tibble = "") {
+		return(
+			tibble::tibble(
+				Year = tibble[, "Year"],
+				Mean_anomaly = apply(tibble[ ,-1], 1, mean, na.rm = TRUE)
+			)
+		)
+	}
+)
 
 
