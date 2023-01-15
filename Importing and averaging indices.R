@@ -69,19 +69,19 @@ parallel::stopCluster(cl)
 
 
 # Data Reshaping - combining all lists with indices into a single list ####
-indices <- indices |> . =>
+indices_reshape <- indices |> . =>
 	do.call(c, .) |> 
 	setNames((dir(pattern = "INDICES") |> readxl::excel_sheets())[1:11])
 
 
 # Renaming all columns of each tibble of the list "indices" ####
-indices %<>% lapply(
+indices_reshape %<>% lapply(
 	\(tibble = "") setNames(tibble, c("Year", month.abb))
 )
 
 
 # Mean annual anomalies for each index ####
-indices %<>% lapply(
+indices_reshape %<>% lapply(
 	\(tibble = "") {
 		return(
 			tibble::tibble(
