@@ -60,7 +60,7 @@ Coastal_Stations_tayData_TMax <- Taylor_Data(
 # Visualization
 openair::TaylorDiagram(
 	# Data
-	Coastal_Sations_tayData_TMax,
+	Coastal_Stations_tayData_TMax,
 	
 	# observations/ground data
 	obs = "obs",
@@ -74,7 +74,7 @@ openair::TaylorDiagram(
 )
 
 # ssaving to disk
-dev.copy(png, filename = "Coastal Stations TMax.png", height = 1500, 1000)
+dev.copy(png, filename = "Coastal.png", height = 462, width = 942)
 dev.off()
 
 
@@ -111,7 +111,7 @@ openair::TaylorDiagram(
 
 
 # ssaving to disk
-dev.copy(png, filename = "ForestBelt TMax.png", height = 1500, 1000)
+dev.copy(png, filename = "ForestBelt TMax.png", height = 462, width = 942)
 dev.off()
 
 
@@ -147,7 +147,7 @@ openair::TaylorDiagram(
 
 
 # ssaving to disk
-dev.copy(png, filename = "Northern Stations TMax.png", height = 1500, 1000)
+dev.copy(png, filename = "Northern Stations TMax.png", height = 462, width = 942)
 dev.off()
 
 
@@ -182,16 +182,16 @@ openair::TaylorDiagram(
 	
 )
 
-dev.copy(png, filename = "Coastal Stations TMin.png", height = 1500, 1000)
+dev.copy(png, filename = "Coastal Stations TMin.png", width = 942, height = 462)
 dev.off()
 
 
-# Taylor Diagram for TMin of Coastal Stations ####
+# Taylor Diagram for TMin of ForestBelt ####
 # Generating data for Taylor plot
 ForestBelt_tayData_TMin <- Taylor_Data(
 	indices = indices_reshape_1, 
 	
-	Category = "Coastal_Stations", 
+	Category = "ForestBelt", 
 	
 	variable = "TMin"
 )
@@ -212,13 +212,13 @@ openair::TaylorDiagram(
 	
 )
 
-dev.copy(png, filename = "ForestBelt TMin.png", height = 1500, 1000)
+dev.copy(png, filename = "ForestBelt TMin.png", height = 462, width = 942)
 dev.off()
 
 
-# Taylor Diagram for TMin of Coastal Stations ####
+# Taylor Diagram for TMin of Northern Stations ####
 # Generating data for Taylor plot
-Northern_Sations_tayData_TMin <- Taylor_Data(
+Northern_Stations_tayData_TMin <- Taylor_Data(
 	indices = indices_reshape_1, 
 	
 	Category = "Northern_Stations", 
@@ -242,8 +242,9 @@ openair::TaylorDiagram(
 	
 )
 
-dev.copy(png, filename = "Northern Stations TMin.png", height = 1500, 1000)
+dev.copy(png, filename = "Northern Stations TMin.png", height = 462, width = 942)
 dev.off()
+
 
 
 
@@ -251,7 +252,7 @@ dev.off()
 
 # importing country shapefile of Ghana
 Ghana <- sf::st_read(
-	"C:/Users/pc/Downloads/Compressed/ghana_administrative/ghana_administrative.shp"
+	"C:/Users/pc/Downloads/Compressed/ghana/ghana.shp"
 )
 
 # Importing cordinates for stations
@@ -266,6 +267,9 @@ co_ords <- read.csv(
 		crs = sf::st_crs(Ghana)
 	)
 
+# Adding co_ords STATION_NA variable to mean_temp
+co_ords <- co_ords[order(co_ords$STATION_NA), ]
+	
 
 # Computing Mean tmax and tmin of all 22 Stations
 mean_temp <- lapply(
@@ -273,7 +277,11 @@ mean_temp <- lapply(
 	\(data = "") apply(data[ ,grep("[^Year]", names(data))], 2, mean, na.rm = T)
 ) |> . => 
 	do.call(rbind, .) |> 
-	as.data.frame()
+	as.data.frame() |> 
+	within({
+		station = co_ords$STATION_NA
+	})
+
 
 # inner joing co_ords and mean_temp by a common variable
 co_ords <- dplyr::inner_join(
@@ -282,11 +290,74 @@ co_ords <- dplyr::inner_join(
 	c("STATION_NA" = "station")
 )
 
+
+# Adding average temp to co_ords 
+co_ords <- within(co_ords, { Average_tmp = apply(mean_temp[ ,1:2], 1, mean, na.rm = TRUE)})
+
+# Re-naming "STATIONS_NA" to simpler names for easy plot visualization
+co_ords$STATION_NA <- {
+	
+	strsplit(co_ords$STATION_NA, " ") |> 
+		lapply(\(name) name[1]) |> . =>
+		do.call(rbind, .) |> 
+		as.character() -> a
+	
+	
+	STATION_NA = character(length = 0)
+	ind = 1
+	
+	for(name in a){
+		if(name == "KETE") {
+			STATION_NA[ind] <- "KETE KRACHI"
+		} else if (name == "SEFWI"){
+			STATION_NA[ind] <- "SEFWI BEKWAI"
+		} else {
+			STATION_NA[ind] <- name
+		}
+		ind = ind + 1
+	}
+	
+	STATION_NA
+	
+}
+	
+
+
+
 # Plotting
+# Colour palette
+org <- RColorBrewer::brewer.pal(5, "Oranges")
+
+# Tmap ####
+# Average Temp
 tmap::tm_shape(Ghana) +
-	tmap::tm_lines() +
+	tmap::tm_lines(lwd = 1) +
 	tmap::tm_shape(co_ords) +
-	tmap::tm_bubbles(col = "Average_tmp", size = 3) +
-	tmap::tm_text(text = "STATION_NA", size = 0.8, interval.closure = "righ", just = "top") +
-	tmap::tm_legend(outside = TRUE, outside.position = c("right"),
-				 legend.stack = "horizontal")
+	tmap::tm_bubbles(col = "Average_Temp", size = 1, palette = org) +
+	tmap::tm_text(text = "STATION_NA", size = 0.4, just = "top", ymod = 0.8, xmod = -.5) +
+	tmap::tm_legend(outside = TRUE, outside.position = c("right"), legend.stack = "horizontal") +
+	tmap::tm_layout(fontface = "bold", fontfamily = "")
+tmap::tmap_save(filename = "Average_Temp_of_Ghana.png", width = 7, height = 8)
+
+
+# Max Temp
+tmap::tm_shape(Ghana) +
+	tmap::tm_lines(lwd = 1) +
+	tmap::tm_shape(co_ords) +
+	tmap::tm_bubbles(col = "TMax", size = 1, palette = org) +
+	tmap::tm_text(text = "STATION_NA", size = 0.4, just = "top", ymod = 0.8, xmod = -.5) +
+	tmap::tm_legend(outside = TRUE, outside.position = c("right"), legend.stack = "horizontal") +
+	tmap::tm_layout(fontface = "bold", fontfamily = "")
+tmap::tmap_save(filename = "Maximum Temp of Ghana.png", width = 7, height = 8)
+
+
+# Min Temp
+tmap::tm_shape(Ghana) +
+	tmap::tm_lines(lwd = 1) +
+	tmap::tm_shape(co_ords) +
+	tmap::tm_bubbles(col = "TMin", size = 1, palette = org) +
+	tmap::tm_text(text = "STATION_NA", size = 0.4, just = "top", ymod = 0.8, xmod = -.5) +
+	tmap::tm_legend(outside = TRUE, outside.position = c("right"), legend.stack = "horizontal") +
+	tmap::tm_layout(fontface = "bold", fontfamily = "")
+tmap::tmap_save(filename = "Minimum Temp of Ghana.png", width = 7, height = 8)
+
