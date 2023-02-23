@@ -294,15 +294,16 @@ co_ords <- dplyr::inner_join(
 # Adding average temp to co_ords 
 co_ords <- within(co_ords, { Average_Temp = apply(mean_temp[ ,1:2], 1, mean, na.rm = TRUE)})
 
-# Re-naming "STATIONS_NA" to simpler names for easy plot visualization
+# Re-naming "STATIONS_NA" in the shapefile "co_ords" to simpler names for easy plot visualization
 co_ords$STATION_NA <- {
 	
+	# Renaming Stations
 	strsplit(co_ords$STATION_NA, " ") |> 
 		lapply(\(name) name[1]) |> . =>
 		do.call(rbind, .) |> 
 		as.character() -> a
 	
-	
+	# replacing names meeting the conditions stated in the loop below
 	for(name in a){
 		if(name == "KETE") {
 			a[name] <- "KETE KRACHI"
