@@ -292,20 +292,18 @@ co_ords <- dplyr::inner_join(
 
 
 # Adding average temp to co_ords 
-co_ords <- within(co_ords, { Average_tmp = apply(mean_temp[ ,1:2], 1, mean, na.rm = TRUE)})
+co_ords <- within(co_ords, { Average_Temp = apply(mean_temp[ ,1:2], 1, mean, na.rm = TRUE)})
 
 # Re-naming "STATIONS_NA" to simpler names for easy plot visualization
 co_ords$STATION_NA <- {
 	
+	# re-writing stations names
 	strsplit(co_ords$STATION_NA, " ") |> 
 		lapply(\(name) name[1]) |> . =>
 		do.call(rbind, .) |> 
 		as.character() -> a
 	
-	
-	STATION_NA = character(length = 0)
-	ind = 1
-	
+	# replacing station names meeting conditions specified in the loop below
 	for(name in a){
 		if(name == "KETE") {
 			STATION_NA[ind] <- "KETE KRACHI"
@@ -336,7 +334,9 @@ tmap::tm_shape(Ghana) +
 	tmap::tm_bubbles(col = "Average_Temp", size = 1, palette = org) +
 	tmap::tm_text(text = "STATION_NA", size = 0.4, just = "top", ymod = 0.8, xmod = -.5) +
 	tmap::tm_legend(outside = TRUE, outside.position = c("right"), legend.stack = "horizontal") +
-	tmap::tm_layout(fontface = "bold", fontfamily = "")
+	tmap::tm_layout(fontface = "bold", fontfamily = "") +
+	tmap::tm_compass(type = "arrow", size = 2, position = c("right", "top"))
+
 tmap::tmap_save(filename = "Average_Temp_of_Ghana.png", width = 7, height = 8)
 
 
@@ -347,7 +347,9 @@ tmap::tm_shape(Ghana) +
 	tmap::tm_bubbles(col = "TMax", size = 1, palette = org) +
 	tmap::tm_text(text = "STATION_NA", size = 0.4, just = "top", ymod = 0.8, xmod = -.5) +
 	tmap::tm_legend(outside = TRUE, outside.position = c("right"), legend.stack = "horizontal") +
-	tmap::tm_layout(fontface = "bold", fontfamily = "")
+	tmap::tm_layout(fontface = "bold", fontfamily = "") +
+	tmap::tm_compass(type = "arrow", size = 2, position = c("right", "top"))
+
 tmap::tmap_save(filename = "Maximum Temp of Ghana.png", width = 7, height = 8)
 
 
@@ -358,6 +360,8 @@ tmap::tm_shape(Ghana) +
 	tmap::tm_bubbles(col = "TMin", size = 1, palette = org) +
 	tmap::tm_text(text = "STATION_NA", size = 0.4, just = "top", ymod = 0.8, xmod = -.5) +
 	tmap::tm_legend(outside = TRUE, outside.position = c("right"), legend.stack = "horizontal") +
-	tmap::tm_layout(fontface = "bold", fontfamily = "")
+	tmap::tm_layout(fontface = "bold", fontfamily = "") +
+	tmap::tm_compass(type = "arrow", size = 2, position = c("right", "top"))
+
 tmap::tmap_save(filename = "Minimum Temp of Ghana.png", width = 7, height = 8)
 
