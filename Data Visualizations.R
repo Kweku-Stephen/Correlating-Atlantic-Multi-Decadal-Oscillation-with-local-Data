@@ -297,22 +297,20 @@ co_ords <- within(co_ords, { Average_Temp = apply(mean_temp[ ,1:2], 1, mean, na.
 # Re-naming "STATIONS_NA" to simpler names for easy plot visualization
 co_ords$STATION_NA <- {
 	
-	# re-writing stations names
 	strsplit(co_ords$STATION_NA, " ") |> 
 		lapply(\(name) name[1]) |> . =>
 		do.call(rbind, .) |> 
 		as.character() -> a
 	
-	# replacing station names meeting conditions specified in the loop below
+	
 	for(name in a){
 		if(name == "KETE") {
-			STATION_NA[ind] <- "KETE KRACHI"
+			a[name] <- "KETE KRACHI"
 		} else if (name == "SEFWI"){
-			STATION_NA[ind] <- "SEFWI BEKWAI"
+			a[name] <- "SEFWI BEKWAI"
 		} else {
-			STATION_NA[ind] <- name
+			a[name] <- name
 		}
-		ind = ind + 1
 	}
 	
 	STATION_NA
