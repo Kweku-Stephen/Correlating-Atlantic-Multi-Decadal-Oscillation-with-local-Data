@@ -122,10 +122,10 @@ Northern_Stations_tayData_TMax <- Taylor_Data(
 	#
 	indices = indices_reshape_1,
 	
-	#
+	# 
 	Category = "Northern_Stations",
 	
-	#
+	# 
 	variable = "TMax"
 )
 
@@ -244,6 +244,72 @@ openair::TaylorDiagram(
 
 dev.copy(png, filename = "Northern Stations TMin.png", height = 462, width = 942)
 dev.off()
+
+
+
+
+# Time Series plot and trend ####
+Annual_timeSeries <- tibble::tibble(
+	
+	Stations = c("Coastal Stations", "ForestBelt", "Northern Stations"),
+	
+	Graphs_TMax = list(
+		
+		Coastal = Categories_Stations$Averages$Coastal_Stations |> 
+			ggplot(aes(x = Year, y = TMax)) +
+			geom_line(col = "firebrick", lwd = 1.5) +
+			geom_smooth(method = "lm", col = "darkblue", se = FALSE) +
+			scale_x_continuous(breaks = seq(1960, 2016, by = 6)) +
+			theme(axis.text = element_text(size = 18),
+				 axis.title = element_text(size = 20, face = "bold")),
+		
+		ForestBelt = Categories_Stations$Averages$ForestBelt |> 
+			ggplot(aes(x = Year, y = TMax)) +
+			geom_line(col = "firebrick", lwd = 1.5) +
+			geom_smooth(method = "lm", col = "darkblue", se = FALSE) +
+			scale_x_continuous(breaks = seq(1960, 2016, by = 6)) +
+			theme(axis.text = element_text(size = 18),
+				 axis.title = element_text(size = 20, face = "bold")),
+		
+		Northern = Categories_Stations$Averages$Northern_Stations |> 
+			ggplot(aes(x = Year, y = TMax)) +
+			geom_line(col = "firebrick", lwd = 1.5) +
+			geom_smooth(method = "lm", col = "darkblue", se = FALSE) +
+			scale_x_continuous(breaks = seq(1960, 2016, by = 6)) +
+			theme(axis.text = element_text(size = 18),
+				 axis.title = element_text(size = 20, face = "bold"))
+	),
+	
+	Graphs_TMin = list(
+		
+		Coastal = Categories_Stations$Averages$Coastal_Stations |>
+			ggplot(aes(x = Year, y = TMin)) +
+			geom_line(col = "firebrick", lwd = 1.5) +
+			geom_smooth(method = "lm", col = "darkblue", se = FALSE) +
+			scale_x_continuous(breaks = seq(1960, 2016, by = 6)) +
+			theme(axis.text = element_text(size = 18),
+				 axis.title = element_text(size = 20, face = "bold")),
+		
+		ForestBelt = Categories_Stations$Averages$ForestBelt |> 
+			ggplot(aes(x = Year, y = TMin)) +
+			geom_line(col = "firebrick", lwd = 1.5) +
+			geom_smooth(method = "lm", col = "darkblue", se = FALSE) +
+			scale_x_continuous(breaks = seq(1960, 2016, by = 6)) +
+			theme(axis.text = element_text(size = 18),
+				 axis.title = element_text(size = 20, face = "bold")),
+		
+		Northern = Categories_Stations$Averages$Northern_Stations |> 
+			ggplot(aes(x = Year, y = TMin)) +
+			geom_line(col = "firebrick", lwd = 1.5) +
+			geom_smooth(method = "lm", col = "darkblue", se = FALSE) +
+			scale_x_continuous(breaks = seq(1960, 2016, by = 6)) +
+			theme(axis.text = element_text(size = 18),
+				 axis.title = element_text(size = 20, face = "bold"))
+	)
+	
+)
+
+
 
 
 
