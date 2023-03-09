@@ -1,7 +1,7 @@
 ##################################################################################################
 # Function to wrangling data into desired format to generate Taylor Diagram ####
 
-Taylor_Data <- function(indices = "", Category = "", variable = "TMin") {
+Taylor_Data <- function(indices = "", Category = "", variable = "") {
 	
 	# Populating missing years  from 1960 to 2016 in each index data
 	lapply(
