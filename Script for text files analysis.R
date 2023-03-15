@@ -1,5 +1,6 @@
 # Loading magrittr ####
 library(magrittr)
+Sys.setenv("_R_USE_PIPEBIND_" = "true")
 
 # Data Import ####
 # Listing files to be imported
